@@ -1,0 +1,361 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  #app { min-height: 600px; display: flex; flex-direction: column; }
+
+  /* LOGIN */
+  #login-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 580px; padding: 2rem;
+  }
+  .login-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem 2.5rem; width: 100%; max-width: 380px;
+  }
+  .login-logo {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--color-background-info);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin: 0 auto 1.25rem;
+  }
+  .login-title {
+    font-size: 20px; font-weight: 500; text-align: center;
+    color: var(--color-text-primary); margin-bottom: 0.25rem;
+  }
+  .login-sub {
+    font-size: 13px; color: var(--color-text-secondary);
+    text-align: center; margin-bottom: 1.5rem;
+  }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block; font-size: 13px;
+    color: var(--color-text-secondary); margin-bottom: 6px;
+  }
+  .form-group input {
+    width: 100%; padding: 8px 12px; font-size: 14px;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus { border-color: var(--color-border-primary); }
+  .login-btn {
+    width: 100%; padding: 10px; font-size: 14px; font-weight: 500;
+    background: var(--color-text-primary); color: var(--color-background-primary);
+    border: none; border-radius: var(--border-radius-md);
+    cursor: pointer; margin-top: 0.5rem; transition: opacity 0.2s;
+  }
+  .login-btn:hover { opacity: 0.85; }
+  .login-err {
+    font-size: 12px; color: var(--color-text-danger);
+    margin-top: 8px; text-align: center; min-height: 18px;
+  }
+  .demo-hint {
+    font-size: 12px; color: var(--color-text-tertiary);
+    text-align: center; margin-top: 1rem;
+  }
+
+  /* CHAT */
+  #chat-screen { display: none; flex-direction: column; height: 580px; }
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--color-background-info);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500; color: var(--color-text-info);
+  }
+  .chat-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .chat-status { font-size: 12px; color: var(--color-text-success); }
+  .logout-btn {
+    font-size: 12px; color: var(--color-text-secondary);
+    background: none; border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md); padding: 5px 10px; cursor: pointer;
+  }
+  .logout-btn:hover { background: var(--color-background-secondary); }
+
+  .messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    background: var(--color-background-secondary);
+  }
+  .msg { display: flex; gap: 8px; max-width: 85%; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-bubble {
+    padding: 9px 13px; border-radius: var(--border-radius-lg);
+    font-size: 14px; line-height: 1.5;
+    border: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+  }
+  .msg.user .msg-bubble {
+    background: var(--color-text-primary); color: var(--color-background-primary);
+    border-color: transparent;
+  }
+  .msg-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--color-background-info);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; color: var(--color-text-info);
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .typing { display: flex; align-items: center; gap: 4px; padding: 10px 13px; }
+  .typing span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-text-tertiary); display: inline-block;
+    animation: blink 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100% { opacity: 0.3; } 40% { opacity: 1; } }
+
+  .chat-footer {
+    padding: 10px 12px;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  #msg-input {
+    flex: 1; resize: none; border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md); padding: 9px 12px;
+    font-size: 14px; font-family: var(--font-sans);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary); outline: none; line-height: 1.4;
+    min-height: 38px; max-height: 100px;
+  }
+  #msg-input:focus { border-color: var(--color-border-primary); }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .icon-btn:hover { background: var(--color-background-tertiary); }
+  .icon-btn.listening {
+    background: var(--color-background-danger);
+    border-color: var(--color-border-danger);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .send-btn {
+    background: var(--color-text-primary); border-color: transparent;
+  }
+  .send-btn:hover { opacity: 0.8; }
+  .send-btn svg { stroke: var(--color-background-primary); }
+  .voice-status {
+    font-size: 11px; color: var(--color-text-danger);
+    text-align: center; padding: 2px 0; min-height: 16px;
+  }
+</style>
+
+<div id="app">
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">🤖</div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Sign in to your AI assistant</div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" />
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign in</button>
+      <div class="login-err" id="login-err"></div>
+      <div class="demo-hint">Demo: use any email + password "1234"</div>
+    </div>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div id="chat-screen">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="avatar" id="user-avatar">?</div>
+        <div>
+          <div class="chat-title" id="user-name">User</div>
+          <div class="chat-status">● online</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+
+    <div class="messages" id="messages"></div>
+    <div class="voice-status" id="voice-status"></div>
+
+    <div class="chat-footer">
+      <button class="icon-btn" id="voice-btn" onclick="toggleVoice()" title="Voice input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+        </svg>
+      </button>
+      <textarea id="msg-input" rows="1" placeholder="Type a message…"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="icon-btn send-btn" onclick="sendMessage()" title="Send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let isListening = false;
+let recognition = null;
+
+const RESPONSES = {
+  greet: ["Hello! How can I help you today?", "Hi there! What can I do for you?", "Hey! Ask me anything."],
+  weather: ["It looks sunny today with a high of 28°C. Perfect weather!", "Expect some clouds today, around 22°C.", "Looks like rain might come later. Carry an umbrella!"],
+  time: [() => `The current time is ${new Date().toLocaleTimeString()}.`],
+  date: [() => `Today is ${new Date().toLocaleDateString('en-IN', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}.`],
+  joke: ["Why don't scientists trust atoms? Because they make up everything!", "I told my computer I needed a break. Now it won't stop sending me vacation ads!", "Why do programmers prefer dark mode? Because light attracts bugs!"],
+  help: ["I can answer questions about the weather, time, date, or just chat! Try asking me something."],
+  name: ["I'm your AI assistant, here to help! You can call me Aria.", "I'm Aria, your voice-enabled AI assistant."],
+  default: ["That's interesting! Tell me more.", "I'm still learning, but I'll do my best to help.", "Great question! Could you rephrase that?", "I understand. Is there anything specific you'd like to know?"]
+};
+
+function getReply(msg) {
+  const m = msg.toLowerCase();
+  if (/hi|hello|hey|howdy/.test(m)) return pick(RESPONSES.greet);
+  if (/weather|rain|sun|temp|hot|cold/.test(m)) return pick(RESPONSES.weather);
+  if (/what time|current time|time is/.test(m)) return RESPONSES.time[0]();
+  if (/what.*date|today.*date|day is/.test(m)) return RESPONSES.date[0]();
+  if (/joke|funny|laugh/.test(m)) return pick(RESPONSES.joke);
+  if (/help|what can|features/.test(m)) return pick(RESPONSES.help);
+  if (/your name|who are you|what are you/.test(m)) return pick(RESPONSES.name);
+  return pick(RESPONSES.default);
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  const err = document.getElementById('login-err');
+  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; return; }
+  if (pass !== '1234') { err.textContent = 'Incorrect password. Try "1234".'; return; }
+  err.textContent = '';
+  currentUser = email.split('@')[0];
+  const initials = currentUser.slice(0,2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name').textContent = currentUser;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'flex';
+  addBotMessage(`Welcome, ${currentUser}! 👋 I'm Aria, your AI assistant. Ask me anything — weather, time, jokes, or just chat. You can also use the mic for voice input!`);
+}
+
+function doLogout() {
+  currentUser = null;
+  if (isListening) stopListening();
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('email').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('chat-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function addMessage(text, isUser) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg' + (isUser ? ' user' : '');
+  const initials = isUser ? currentUser.slice(0,2).toUpperCase() : 'AI';
+  const av = `<div class="msg-avatar">${initials}</div>`;
+  wrap.innerHTML = av + `<div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addBotMessage(text) {
+  const msgs = document.getElementById('messages');
+  const typing = document.createElement('div');
+  typing.className = 'msg'; typing.id = 'typing';
+  typing.innerHTML = `<div class="msg-avatar">AI</div><div class="msg-bubble typing"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+    addMessage(text, false);
+  }, 700 + Math.random() * 500);
+}
+
+function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(text, true);
+  input.value = ''; input.style.height = '';
+  fetch("http://127.0.0.1:5000/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    user: "Ramya",
+    message: text
+  })
+})
+.then(res => res.json())
+.then(data => addBotMessage(data.reply))
+.catch(() => addBotMessage("Server error"));
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = ''; el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function toggleVoice() {
+  if (isListening) stopListening(); else startListening();
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('voice-status').textContent = 'Voice not supported in this browser.';
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-IN'; recognition.continuous = false; recognition.interimResults = true;
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voice-btn').classList.add('listening');
+    document.getElementById('voice-status').textContent = '🔴 Listening…';
+  };
+  recognition.onresult = (e) => {
+    const t = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('msg-input').value = t;
+    if (e.results[e.results.length-1].isFinal) {
+      stopListening(); sendMessage();
+    }
+  };
+  recognition.onerror = () => stopListening();
+  recognition.onend = () => stopListening();
+  recognition.start();
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) recognition.stop();
+  document.getElementById('voice-btn').classList.remove('listening');
+  document.getElementById('voice-status').textContent = '';
+}
+</script>
